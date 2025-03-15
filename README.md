@@ -9,12 +9,10 @@
 - Registering custom enemies without code
 - Automatic asset bundling and Thunderstore packaging
 
-## Usage
+## Installation
 
 This section assumes you already have a Unity project set up for R.E.P.O. modding.
 If not, use a tool like [R.E.P.O. Project Patcher](https://github.com/Kesomannen/unity-repo-project-patcher) first.
-
-### Setup
 
 **1. Add REPOLib to the project**
 
@@ -22,11 +20,19 @@ If not, use a tool like [R.E.P.O. Project Patcher](https://github.com/Kesomannen
 - Extract the downloaded file.
 - Copy `REPOLib.dll` into your project.
 
+> [!TIP]
+> To update REPOLib, replace the dll with a newer version's.
+
 **2. Add REPOLib-Sdk to the project**
 
 - In unity, go to `Window > Package Manager`.
 - Click the `+` button in the top left and choose `Add package from git URL`.
 - Enter `https://github.com/ZehsTeam/REPOLib-Sdk.git`.
+
+> [!TIP]
+> To update REPOLib-Sdk, go to the Package Manager, click on the package and then `Update`.
+
+## Usage
 
 ### Create a mod
 
@@ -40,6 +46,7 @@ If not, use a tool like [R.E.P.O. Project Patcher](https://github.com/Kesomannen
   - `Website Url`: Optional.
   - `Icon`: must be a 256x256 PNG file.
   - `Readme`: a longer description of the mod, in a separate file. Supports markdown formatting.
+  - `Extra Files`: additional files that will be included in the package, for example a dll containing your scripts.
 
 > [!TIP]
 > You can have multiple mods in the same project, as long as they're in separate folders.

@@ -49,16 +49,31 @@ namespace REPOLibSdk.Editor
             string finalBundlePath = Path.Combine(packagePath, mod.Name + ".repobundle");
             File.Copy(bundlePath, finalBundlePath);
 
+            WriteExtraFiles(mod, packagePath);
             WriteReadme(mod, packagePath);
-            WriteChangelog(mod, packagePath);
             WriteIcon(mod, packagePath);
             WriteManifest(mod, packagePath);
-
+            
             string zipPath = Path.Combine(outputPath, $"{mod.Identifier}.zip");
             ZipUtility.CompressFolderToZip(zipPath, null, packagePath);
             
             AssetDatabase.Refresh();
             EditorUtility.RevealInFinder(zipPath);
+        }
+
+        private static void WriteExtraFiles(Mod mod, string packagePath)
+        {
+            var settings = ModExportSettingsSource.GetSettings(mod);
+
+            foreach (var file in settings.ExtraFiles)
+            {
+                if (file == null) continue;
+                
+                string fromPath = AssetDatabase.GetAssetPath(file);
+                string toPath = Path.Combine(packagePath, Path.GetFileName(fromPath));
+                
+                File.Copy(fromPath, toPath);
+            }
         }
         
         private static void WriteReadme(Mod mod, string packagePath)
@@ -75,23 +90,6 @@ namespace REPOLibSdk.Editor
                 return;
             }
             File.Copy(fromPath, Path.Combine(packagePath, "README.md"));
-        }
-        
-
-        private static void WriteChangelog(Mod mod, string packagePath)
-        {
-            if (mod.Changelog == null)
-            {
-                // Changelog isn't strictly necessary, no need to log a warning
-                return;
-            }
-            string fromPath = AssetDatabase.GetAssetPath(mod.Changelog);
-            if (string.IsNullOrWhiteSpace(fromPath) || !File.Exists(fromPath))
-            {
-                Debug.LogError($"Invalid changelog path \"{fromPath}\".");
-                return;
-            }
-            File.Copy(fromPath, Path.Combine(packagePath, "CHANGELOG.md"));
         }
 
         private static void WriteIcon(Mod mod, string packagePath)
