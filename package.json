@@ -4,7 +4,7 @@
   "displayName": "REPOLib-Sdk",
   "unity": "2022.3",
   "unityRelease": "62f1",
-  "documentationUrl": "https://github.com/Kesomannen/REPOLib-Sdk/wiki",
+  "documentationUrl": "https://repomods.com/repolib/sdk/start.html",
   "licensesUrl": "https://choosealicense.com/licenses/mit/",
   "dependencies": {
     "com.unity.sharp-zip-lib": "1.4.1"
