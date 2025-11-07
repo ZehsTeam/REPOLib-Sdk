@@ -14,17 +14,17 @@
 
 Documentation is available on the [R.E.P.O. Modding Wiki](https://repomods.com/repolib/sdk/start.html).
 
-## Contribute
-
-Anyone is free to contribute.
-
-https://github.com/ZehsTeam/REPOLib-Sdk
-
 ## Developer Contact
-**Report bugs, suggest features, or provide feedback:**
-- **GitHub Issues Page:** [REPOLib](https://github.com/ZehsTeam/REPOLib/issues)
-- **Email:** crithaxxog@gmail.com
-- **Twitch:** [CritHaxXoG](https://www.twitch.tv/crithaxxog)
-- **YouTube:** [Zehs](https://www.youtube.com/channel/UCb4VEkc-_im0h8DKXlwmIAA)
 
-[![kofi](https://i.imgur.com/jzwECeF.png)](https://ko-fi.com/zehsteam)
+**Report bugs, suggest features, or provide feedback:**
+
+| **Discord Server** | **Forum** | **Post** |  
+|--------------------|-----------|----------|  
+| [R.E.P.O. Modding Server](https://discord.com/invite/vPJtKhYAFe) | `#development-resources` | [REPOLib + REPOLib-Sdk](https://discord.com/channels/1344557689979670578/1348784959422205973) |
+
+- **GitHub Issues Page:** [REPOLib-Sdk](https://github.com/ZehsTeam/REPOLib-Sdk/issues)
+- **My Links:** https://solo.to/crithaxxog
+
+<a href="https://ko-fi.com/zehsteam" target="_blank">
+<img src="https://storage.ko-fi.com/cdn/brandasset/v2/support_me_on_kofi_dark.png" alt="Ko-Fi" width="200px"/>
+</a>
