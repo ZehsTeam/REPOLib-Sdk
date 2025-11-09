@@ -144,7 +144,7 @@ namespace REPOLibSdk.Editor
                 targetPlatform = BuildTarget.StandaloneWindows64
             });
             
-            return Path.Combine(path, mod.Name);
+            return Path.Combine(path, mod.Name.ToLower());
         }
 
         private static void CreateDirectoryIfNotExists(string path)
