@@ -12,7 +12,7 @@
 
 ## Documentation
 
-Documentation is available on the [R.E.P.O. Modding Wiki](https://repomods.com/repolib/sdk/start.html).
+Documentation is available on the [R.E.P.O. Modding Wiki](https://repomods.com/apis/repolib/sdk/start.html).
 
 ## Developer Contact
 
