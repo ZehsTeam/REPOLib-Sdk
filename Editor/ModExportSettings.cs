@@ -14,6 +14,9 @@ namespace REPOLibSdk.Editor
         [SerializeField]
         private List<Object> _extraFiles;
 
+        [SerializeField]
+        private List<Object> _extraBundleFiles;
+
         public Mod Mod
         {
             get => _mod; 
@@ -21,5 +24,7 @@ namespace REPOLibSdk.Editor
         }
         
         public IReadOnlyList<Object> ExtraFiles => _extraFiles;
+
+        public IReadOnlyList<Object> ExtraBundleFiles => _extraBundleFiles;
     }
 }
