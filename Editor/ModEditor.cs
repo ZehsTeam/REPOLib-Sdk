@@ -48,6 +48,7 @@ namespace REPOLibSdk.Editor
             Util.PropertyField("_icon", serializedObject, root);
             Util.PropertyField("_readme", serializedObject, root);
             Util.PropertyField("_extraFiles", exportSettings, root);
+            Util.PropertyField("_extraBundleFiles", exportSettings, root);
 
             var button = new Button(() => {
                 ExportWindow.Open((Mod)target);

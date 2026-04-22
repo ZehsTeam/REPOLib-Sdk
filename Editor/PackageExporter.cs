@@ -34,11 +34,19 @@ namespace REPOLibSdk.Editor
         public static void ExportPackage(Mod mod, string outputPath)
         {
             CreateDirectoryIfNotExists(outputPath);
-            
+
+            var settings = ModExportSettingsSource.GetSettings(mod);
+            string[] extraBundleAssets = settings.ExtraBundleFiles
+                .Where(f => f != null)
+                .Select(f => AssetDatabase.GetAssetPath(f))
+                .ToArray();
+
             string[] assetPaths = FindContents(mod)
                 .Where(tuple => !tuple.IsDependency) // BuildAssetBundles collects dependencies by itself
                 .Select(tuple => tuple.Path)
                 .Append(AssetDatabase.GetAssetPath(mod)) // include the Mod
+                .Concat(extraBundleAssets)
+                .Distinct()
                 .ToArray();
             string bundlePath = Path.GetFullPath(Path.Combine(outputPath, "bundle"));
             bundlePath = BuildAssetBundle(mod, bundlePath, assetPaths);
