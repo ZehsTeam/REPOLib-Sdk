@@ -36,10 +36,11 @@ namespace REPOLibSdk.Editor
             CreateDirectoryIfNotExists(outputPath);
 
             var settings = ModExportSettingsSource.GetSettings(mod);
-            string[] extraBundleAssets = settings.ExtraBundleFiles
+            string[] extraBundleAssets = settings.ExtraBundleFiles?
                 .Where(f => f != null)
                 .Select(f => AssetDatabase.GetAssetPath(f))
-                .ToArray();
+                .ToArray()
+                ?? System.Array.Empty<string>();
 
             string[] assetPaths = FindContents(mod)
                 .Where(tuple => !tuple.IsDependency) // BuildAssetBundles collects dependencies by itself
@@ -72,7 +73,12 @@ namespace REPOLibSdk.Editor
         private static void WriteExtraFiles(Mod mod, string packagePath)
         {
             var settings = ModExportSettingsSource.GetSettings(mod);
-
+            
+            if (settings.ExtraFiles == null)
+            {
+                return;
+            }
+            
             foreach (var file in settings.ExtraFiles)
             {
                 if (file == null) continue;
