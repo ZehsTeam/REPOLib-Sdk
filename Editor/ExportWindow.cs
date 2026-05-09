@@ -87,9 +87,18 @@ namespace REPOLibSdk.Editor
 
                 if (_selectedMod == null) return;
                 
+                var settings = ModExportSettingsSource.GetSettings(_selectedMod);
+                (Object, bool)[] extraBundleAssets = settings.ExtraBundleFiles?
+                    .Where(f => f != null)
+                    .Select(f => (f, true))
+                    .ToArray()
+                    ?? System.Array.Empty<(Object, bool)>();
+
                 (Object, bool)[] includedAssets = PackageExporter.FindContents(_selectedMod)
                     .Where(tuple => !tuple.Path.EndsWith(".dll"))
                     .Select(tuple => (AssetDatabase.LoadAssetAtPath<Object>(tuple.Path), tuple.IsDependency))
+                    .Concat(extraBundleAssets)
+                    .Distinct()
                     .OrderBy(tuple => tuple.Item1.GetType().Name)
                     .ThenBy(tuple => tuple.Item1.name)
                     .ToArray();
