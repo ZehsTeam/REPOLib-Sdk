@@ -150,7 +150,7 @@ namespace REPOLibSdk.Editor
                 {
                     new AssetBundleBuild
                     {
-                        assetBundleName = mod.Name,
+                        assetBundleName = mod.Name.ToLowerInvariant(),
                         assetNames = assetNames
                     }
                 },
@@ -158,7 +158,7 @@ namespace REPOLibSdk.Editor
                 targetPlatform = BuildTarget.StandaloneWindows64
             });
             
-            return Path.Combine(path, mod.Name.ToLower());
+            return Path.Combine(path, mod.Name.ToLowerInvariant());
         }
 
         private static void CreateDirectoryIfNotExists(string path)
