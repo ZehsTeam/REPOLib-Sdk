@@ -140,13 +140,18 @@ namespace REPOLibSdk.Editor
         private static string BuildAssetBundle(Mod mod, string path, string[] assetNames)
         {
             Debug.Log($"Building bundle to {path}");
-            
+        
             DeleteAndRecreateDirectory(path);
-            
-            BuildPipeline.BuildAssetBundles(new BuildAssetBundlesParameters
-            {
-                outputPath = path,
-                bundleDefinitions = new[]
+        
+#if UNITY_EDITOR_LINUX
+            BuildTarget targetPlatform = BuildTarget.StandaloneLinux64;
+#else
+            BuildTarget targetPlatform = BuildTarget.StandaloneWindows64;
+#endif
+    
+            var manifest = BuildPipeline.BuildAssetBundles(
+                path,
+                new[]
                 {
                     new AssetBundleBuild
                     {
@@ -154,10 +159,10 @@ namespace REPOLibSdk.Editor
                         assetNames = assetNames
                     }
                 },
-                options = BuildAssetBundleOptions.UseContentHash,
-                targetPlatform = BuildTarget.StandaloneWindows64
-            });
-            
+                BuildAssetBundleOptions.UseContentHash,
+                targetPlatform
+            );
+        
             return Path.Combine(path, mod.Name.ToLowerInvariant());
         }
 
