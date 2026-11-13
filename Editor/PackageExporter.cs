@@ -49,6 +49,11 @@ namespace REPOLibSdk.Editor
                 .Concat(extraBundleAssets)
                 .Distinct()
                 .ToArray();
+            assetPaths = assetPaths
+                .Concat(LocalizationExporter.FindModStringTables(assetPaths))
+                .Concat(PrefabRefExporter.FindPrefabRefTargets(assetPaths))
+                .Distinct(System.StringComparer.OrdinalIgnoreCase)
+                .ToArray();
             string bundlePath = Path.GetFullPath(Path.Combine(outputPath, "bundle"));
             bundlePath = BuildAssetBundle(mod, bundlePath, assetPaths);
 
