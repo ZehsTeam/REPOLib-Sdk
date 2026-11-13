@@ -13,6 +13,9 @@ namespace REPOLibSdk.Editor
         private const string GameFolder = "Assets/REPO/Game/";
 
         private static readonly Regex ResourcePathRegex = new Regex(@"^\s*resourcePath: (.+?)\r?$", RegexOptions.Multiline);
+        // the editor-only "prefab" field of a PrefabRef, which is always followed by "prefabName"
+        private static readonly Regex PrefabRefTargetRegex = new Regex(@"^[ \t]*(?:- )?prefab: \{fileID: -?\d+, guid: ([0-9a-f]{32}), type: \d+\}\r?\n[ \t]*prefabName:", RegexOptions.Multiline);
+        private static readonly Regex GuidRegex = new Regex(@"guid: ([0-9a-f]{32})");
         private static readonly HashSet<string> YamlExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".asset", ".prefab", ".unity"
@@ -48,6 +51,70 @@ namespace REPOLibSdk.Editor
             }
 
             return result.ToList();
+        }
+
+        /// <summary>
+        /// PrefabRefs to base-game assets load the game's own copy in-game, but their editor-only prefab field still
+        /// makes Unity copy the asset into the bundle. Returns the base-game assets the given assets only reach through
+        /// PrefabRefs, so they can be built into a separate bundle that isn't shipped.
+        /// Base-game assets that are also referenced directly are left out, since the bundle needs its own copy of those.
+        /// </summary>
+        public static List<string> FindPrefabRefOnlyGameAssets(IEnumerable<string> assetPaths)
+        {
+            var reachable = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var prefabRefTargets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var queue = new Queue<string>(assetPaths);
+
+            while (queue.Count > 0)
+            {
+                string path = queue.Dequeue();
+                if (!reachable.Add(path)) continue;
+
+                foreach (var (dependency, viaPrefabRef) in GetDirectDependencies(path))
+                {
+                    if (viaPrefabRef && dependency.StartsWith(GameFolder, StringComparison.OrdinalIgnoreCase))
+                    {
+                        prefabRefTargets.Add(dependency);
+                        continue;
+                    }
+
+                    if (!reachable.Contains(dependency)) queue.Enqueue(dependency);
+                }
+            }
+
+            var result = prefabRefTargets.Where(x => !reachable.Contains(x)).ToList();
+            if (result.Count > 0)
+            {
+                Debug.Log($"Leaving out {result.Count} base-game asset(s) only referenced by PrefabRefs, the game loads its own copy:\n{string.Join("\n", result)}");
+            }
+
+            return result;
+        }
+
+        private static IEnumerable<(string Path, bool ViaPrefabRef)> GetDirectDependencies(string path)
+        {
+            if (!YamlExtensions.Contains(Path.GetExtension(path)) || !File.Exists(path))
+            {
+                foreach (string dependency in AssetDatabase.GetDependencies(path, false))
+                {
+                    if (dependency != path) yield return (dependency, false);
+                }
+                yield break;
+            }
+
+            string text = File.ReadAllText(path);
+            var prefabRefGuidIndices = new HashSet<int>(PrefabRefTargetRegex.Matches(text)
+                .Cast<Match>()
+                .Select(x => x.Groups[1].Index));
+
+            foreach (Match match in GuidRegex.Matches(text))
+            {
+                string dependency = AssetDatabase.GUIDToAssetPath(match.Groups[1].Value);
+                if (string.IsNullOrEmpty(dependency) || dependency == path) continue;
+                if (!dependency.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase) && !dependency.StartsWith("Packages/", StringComparison.OrdinalIgnoreCase)) continue;
+
+                yield return (dependency, prefabRefGuidIndices.Contains(match.Groups[1].Index));
+            }
         }
     }
 }
