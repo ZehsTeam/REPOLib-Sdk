@@ -1,9 +1,9 @@
 {
   "name": "zehs.repolib-sdk",
-  "version": "1.2.6",
+  "version": "1.3.0",
   "displayName": "REPOLib-Sdk",
-  "unity": "2022.3",
-  "unityRelease": "62f3",
+  "unity": "6000.3",
+  "unityRelease": "17f1",
   "documentationUrl": "https://repomods.com/apis/repolib/sdk/start.html",
   "licensesUrl": "https://choosealicense.com/licenses/mit/",
   "dependencies": {
