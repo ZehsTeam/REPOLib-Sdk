@@ -18,7 +18,7 @@ namespace REPOLibSdk.Editor
             string[] content = AssetDatabase.FindAssets("t:Content", new[] { directory })
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .ToArray();
-            
+
             foreach (string asset in content)
             {
                 yield return (asset, false);
@@ -30,7 +30,7 @@ namespace REPOLibSdk.Editor
                 yield return (dependency, true);
             }
         }
-        
+
         public static void ExportPackage(Mod mod, string outputPath)
         {
             CreateDirectoryIfNotExists(outputPath);
@@ -49,12 +49,20 @@ namespace REPOLibSdk.Editor
                 .Concat(extraBundleAssets)
                 .Distinct()
                 .ToArray();
+            assetPaths = assetPaths
+                .Concat(LocalizationExporter.FindModStringTables(assetPaths))
+                .Concat(PrefabRefExporter.FindPrefabRefTargets(assetPaths))
+                .Distinct(System.StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            string[] excludedAssetPaths = PrefabRefExporter.FindPrefabRefOnlyGameAssets(assetPaths)
+                .Except(assetPaths, System.StringComparer.OrdinalIgnoreCase)
+                .ToArray();
             string bundlePath = Path.GetFullPath(Path.Combine(outputPath, "bundle"));
-            bundlePath = BuildAssetBundle(mod, bundlePath, assetPaths);
+            bundlePath = BuildAssetBundle(mod, bundlePath, assetPaths, excludedAssetPaths);
 
             string packagePath = Path.Combine(outputPath, "package");
             DeleteAndRecreateDirectory(packagePath);
-            
+
             string finalBundlePath = Path.Combine(packagePath, mod.Name + ".repobundle");
             File.Copy(bundlePath, finalBundlePath);
 
@@ -62,10 +70,10 @@ namespace REPOLibSdk.Editor
             WriteReadme(mod, packagePath);
             WriteIcon(mod, packagePath);
             WriteManifest(mod, packagePath);
-            
+
             string zipPath = Path.Combine(outputPath, $"{mod.Identifier}.zip");
             ZipUtility.CompressFolderToZip(zipPath, null, packagePath);
-            
+
             AssetDatabase.Refresh();
             EditorUtility.RevealInFinder(zipPath);
         }
@@ -73,23 +81,23 @@ namespace REPOLibSdk.Editor
         private static void WriteExtraFiles(Mod mod, string packagePath)
         {
             var settings = ModExportSettingsSource.GetSettings(mod);
-            
+
             if (settings.ExtraFiles == null)
             {
                 return;
             }
-            
+
             foreach (var file in settings.ExtraFiles)
             {
                 if (file == null) continue;
-                
+
                 string fromPath = AssetDatabase.GetAssetPath(file);
                 string toPath = Path.Combine(packagePath, Path.GetFileName(fromPath));
-                
+
                 File.Copy(fromPath, toPath);
             }
         }
-        
+
         private static void WriteReadme(Mod mod, string packagePath)
         {
             if (mod.Readme == null)
@@ -121,7 +129,7 @@ namespace REPOLibSdk.Editor
             }
             File.Copy(fromPath, Path.Combine(packagePath, "icon.png"));
         }
-        
+
         private static void WriteManifest(Mod mod, string packagePath)
         {
             var manifest = new ThunderstoreManifest
@@ -132,28 +140,39 @@ namespace REPOLibSdk.Editor
                 Dependencies = mod.Dependencies.ToArray(),
                 WebsiteUrl = mod.WebsiteUrl
             };
-            
+
             string json = JsonConvert.SerializeObject(manifest, Formatting.Indented);
             File.WriteAllText(Path.Combine(packagePath, "manifest.json"), json);
         }
 
-        private static string BuildAssetBundle(Mod mod, string path, string[] assetNames)
+        private static string BuildAssetBundle(Mod mod, string path, string[] assetNames, string[] excludedAssetNames)
         {
             Debug.Log($"Building bundle to {path}");
 
             DeleteAndRecreateDirectory(path);
 
+            var bundleDefinitions = new List<AssetBundleBuild>
+            {
+                new AssetBundleBuild
+                {
+                    assetBundleName = mod.Name.ToLowerInvariant(),
+                    assetNames = assetNames
+                }
+            };
+
+            if (excludedAssetNames.Length > 0)
+            {
+                bundleDefinitions.Add(new AssetBundleBuild
+                {
+                    assetBundleName = mod.Name.ToLowerInvariant() + "_excluded",
+                    assetNames = excludedAssetNames
+                });
+            }
+
             BuildPipeline.BuildAssetBundles(new BuildAssetBundlesParameters
             {
                 outputPath = path,
-                bundleDefinitions = new[]
-                {
-                    new AssetBundleBuild
-                    {
-                        assetBundleName = mod.Name.ToLowerInvariant(),
-                        assetNames = assetNames
-                    }
-                },
+                bundleDefinitions = bundleDefinitions.ToArray(),
                 options = BuildAssetBundleOptions.UseContentHash,
                 targetPlatform = BuildTarget.StandaloneWindows64
             });
@@ -164,7 +183,7 @@ namespace REPOLibSdk.Editor
         private static void CreateDirectoryIfNotExists(string path)
         {
             if (Directory.Exists(path)) return;
-            
+
             Directory.CreateDirectory(path);
         }
 
@@ -174,24 +193,24 @@ namespace REPOLibSdk.Editor
             {
                 Directory.Delete(path, true);
             }
-            
+
             Directory.CreateDirectory(path);
         }
-        
+
         private class ThunderstoreManifest
         {
             [JsonProperty("name")]
             public string Name;
-            
+
             [JsonProperty("description")]
             public string Description;
-            
+
             [JsonProperty("version_number")]
             public string Version;
-            
+
             [JsonProperty("dependencies")]
             public string[] Dependencies;
-            
+
             [JsonProperty("website_url")]
             public string WebsiteUrl;
         }

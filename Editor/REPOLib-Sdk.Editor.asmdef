@@ -2,7 +2,9 @@
     "name": "REPOLib-Sdk.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:8c1b5e158961445498f8a66188fbb2e3"
+        "GUID:8c1b5e158961445498f8a66188fbb2e3",
+        "Unity.Localization",
+        "Unity.Localization.Editor"
     ],
     "includePlatforms": [
         "Editor"
@@ -13,6 +15,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.localization",
+            "expression": "1.0.0",
+            "define": "REPOLIB_SDK_LOCALIZATION"
+        }
+    ],
     "noEngineReferences": false
 }
